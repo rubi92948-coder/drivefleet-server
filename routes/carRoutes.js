@@ -1,66 +1,53 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const Car = require("../models/Car");
+const jwt = require("jsonwebtoken");
 
-
-// ➤ CREATE CAR
+// ➕ CREATE CAR (JWT PROTECTED)
 router.post("/cars", async (req, res) => {
   try {
-    const car = await Car.create(req.body);
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const car = await Car.create({
+      ...req.body,
+      userId: decoded.id,
+    });
+
     res.status(201).json(car);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
-// ➤ GET ALL CARS
+// 📥 GET ALL
 router.get("/cars", async (req, res) => {
-  try {
-    const cars = await Car.find();
-    res.json(cars);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const cars = await Car.find();
+  res.json(cars);
 });
 
-
-// ➤ GET SINGLE CAR
+// 🔍 GET SINGLE
 router.get("/cars/:id", async (req, res) => {
-  try {
-    const car = await Car.findById(req.params.id);
-    if (!car) return res.status(404).json({ message: "Car not found" });
-
-    res.json(car);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const car = await Car.findById(req.params.id);
+  res.json(car);
 });
 
-
-// ➤ UPDATE CAR
+// ✏️ UPDATE
 router.put("/cars/:id", async (req, res) => {
-  try {
-    const car = await Car.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(car);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  res.json(car);
 });
 
-
-// ➤ DELETE CAR
+// 🗑 DELETE
 router.delete("/cars/:id", async (req, res) => {
-  try {
-    await Car.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  await Car.findByIdAndDelete(req.params.id);
+  res.json({ message: "Deleted" });
 });
 
 module.exports = router;

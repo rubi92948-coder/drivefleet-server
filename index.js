@@ -10,10 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-
-// =====================
 // MIDDLEWARE
-// =====================
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -24,34 +21,22 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-
-// =====================
 // ROUTES
-// =====================
 app.use("/api", carRoutes);
 app.use("/api/auth", authRoutes);
 
-
-// =====================
-// HOME ROUTE
-// =====================
+// HOME
 app.get("/", (req, res) => {
   res.send("DriveFleet API Running 🚗");
 });
 
-
-// =====================
-// MONGODB CONNECT
-// =====================
+// DB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
-  .catch((err) => console.log("Mongo Error ❌", err));
+  .catch((err) => console.log(err));
 
-
-// =====================
-// SERVER START
-// =====================
+// SERVER
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
