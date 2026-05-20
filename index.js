@@ -6,60 +6,55 @@ require("dotenv").config();
 
 const carRoutes = require("./routes/carRoutes");
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const Car = require("./models/Car"); 
 
-const userRoutes = require("./routes/userRoutes"); // ✅ ADDED (profile)
-
-// =====================
-// APP INIT
-// =====================
 const app = express();
 
-
-// =====================
-// MIDDLEWARE
-// =====================
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
-
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-// =====================
 // ROUTES
-// =====================
 app.use("/api", carRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes); // ✅ PROFILE ROUTE ADDED
+app.use("/api/user", userRoutes);
 
-
-// =====================
-// TEST ROUTE
-// =====================
-app.get("/", (req, res) => {
-  res.send("DriveFleet API Running 🚗");
+// 1. Booking Confirmation (Increase Count)
+app.put("/api/cars/book/:id", async (req, res) => {
+  try {
+    const updatedCar = await Car.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { bookingCount: 1 } },
+      { new: true }
+    );
+    res.json(updatedCar);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update count" });
+  }
 });
 
+// 2. Booking Cancellation (Decrease Count)
+app.put("/api/cars/cancel-booking/:id", async (req, res) => {
+  try {
+    const updatedCar = await Car.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { bookingCount: -1 } },
+      { new: true }
+    );
+    res.json(updatedCar);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update count" });
+  }
+});
 
-// =====================
+app.get("/", (req, res) => { res.send("DriveFleet API Running 🚗"); });
+
 // DATABASE
-// =====================
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
   .catch((err) => console.log("MongoDB Error:", err));
 
-
-// =====================
-// SERVER START
-// =====================
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); });

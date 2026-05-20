@@ -10,6 +10,8 @@ const carSchema = new mongoose.Schema({
   userId: { type: String },
   availability: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
+  
+  bookingCount: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model("Car", carSchema);
