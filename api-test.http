@@ -36,3 +36,30 @@ Content-Type: application/json
 ### 🗑 DELETE CAR
 ### =========================
 DELETE http://localhost:5000/api/cars/PUT_ID_HERE
+
+### =========================
+### 🚀 REGISTER USER
+### =========================
+
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "RuhZaan",
+  "email": "ruhz@example.com",
+  "photoURL": "https://i.ibb.co/test.jpg",
+  "password": "Test123"
+}
+
+
+### =========================
+### 🔐 LOGIN USER
+### =========================
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ruhz@example.com",
+  "password": "Test123"
+}
