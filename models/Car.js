@@ -7,7 +7,7 @@ const carSchema = new mongoose.Schema({
   image: { type: String, required: true },
   seats: { type: Number, required: true },
   description: { type: String, required: true },
-  userId: { type: String }, // ✅ IMPORTANT FIX
+  userId: { type: String },
   availability: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });

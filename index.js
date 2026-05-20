@@ -7,6 +7,11 @@ require("dotenv").config();
 const carRoutes = require("./routes/carRoutes");
 const authRoutes = require("./routes/authRoutes");
 
+const userRoutes = require("./routes/userRoutes"); // ✅ ADDED (profile)
+
+// =====================
+// APP INIT
+// =====================
 const app = express();
 
 
@@ -30,6 +35,7 @@ app.use(cookieParser());
 // =====================
 app.use("/api", carRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes); // ✅ PROFILE ROUTE ADDED
 
 
 // =====================
@@ -41,7 +47,7 @@ app.get("/", (req, res) => {
 
 
 // =====================
-// DATABASE CONNECTION
+// DATABASE
 // =====================
 mongoose
   .connect(process.env.MONGO_URI)
