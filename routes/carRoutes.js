@@ -2,7 +2,8 @@ const router = require("express").Router();
 const Car = require("../models/Car");
 const jwt = require("jsonwebtoken");
 
-// ➕ CREATE CAR (JWT PROTECTED)
+
+// ➕ CREATE CAR
 router.post("/cars", async (req, res) => {
   try {
     const token = req.cookies.token;
@@ -24,30 +25,48 @@ router.post("/cars", async (req, res) => {
   }
 });
 
-// 📥 GET ALL
+
+// 📥 GET ALL (EXPLORE PAGE)
 router.get("/cars", async (req, res) => {
-  const cars = await Car.find();
-  res.json(cars);
+  try {
+    const cars = await Car.find();
+    res.json(cars);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// 🔍 GET SINGLE
+
+// 📥 GET MY CARS (IMPORTANT FIX)
+router.get("/cars/user/:id", async (req, res) => {
+  try {
+    const cars = await Car.find({ userId: req.params.id });
+    res.json(cars);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// 🔍 SINGLE CAR
 router.get("/cars/:id", async (req, res) => {
-  const car = await Car.findById(req.params.id);
-  res.json(car);
+  try {
+    const car = await Car.findById(req.params.id);
+    res.json(car);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ✏️ UPDATE
-router.put("/cars/:id", async (req, res) => {
-  const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-  res.json(car);
-});
 
-// 🗑 DELETE
+// 🗑 DELETE CAR
 router.delete("/cars/:id", async (req, res) => {
-  await Car.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
+  try {
+    await Car.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

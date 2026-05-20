@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-
 require("dotenv").config();
 
 const carRoutes = require("./routes/carRoutes");
@@ -10,7 +9,10 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
+
+// =====================
 // MIDDLEWARE
+// =====================
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -19,24 +21,37 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+// =====================
 // ROUTES
+// =====================
 app.use("/api", carRoutes);
 app.use("/api/auth", authRoutes);
 
-// HOME
+
+// =====================
+// TEST ROUTE
+// =====================
 app.get("/", (req, res) => {
   res.send("DriveFleet API Running 🚗");
 });
 
-// DB
+
+// =====================
+// DATABASE CONNECTION
+// =====================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
-  .catch((err) => console.log(err));
+  .catch((err) => console.log("MongoDB Error:", err));
 
-// SERVER
+
+// =====================
+// SERVER START
+// =====================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
