@@ -1,21 +1,25 @@
-const router = require("express").Router();
-const Car = require("../models/Car");
-const jwt = require("jsonwebtoken");
+import express from "express";
+import Car from "../models/Car.js";
+import jwt from "jsonwebtoken";
 
-// ➕ CREATE CAR
-router.post("/cars", async (req, res) => {
+const router = express.Router();
+
+/* ---------------- CREATE CAR (PROTECTED) ---------------- */
+router.post("/", async (req, res) => {
   try {
-    const token = req.cookies.token;
+    const token =
+      req.cookies?.token ||
+      req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized - No token" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const car = await Car.create({
       ...req.body,
-      userId: decoded.id, // Saved using the logged-in user's ID from token
+      userId: decoded.id,
     });
 
     res.status(201).json(car);
@@ -24,54 +28,69 @@ router.post("/cars", async (req, res) => {
   }
 });
 
-// 📥 GET ALL (EXPLORE PAGE)
-router.get("/cars", async (req, res) => {
+/* ---------------- GET ALL CARS (PUBLIC) ---------------- */
+router.get("/", async (req, res) => {
   try {
-    const cars = await Car.find();
-    res.json(cars);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { search, type } = req.query;
 
-// 📥 GET MY CARS (SECURE FIX)
-// Changed route from "/cars/user/:id" to "/cars/my-cars" for token-based tracking
-router.get("/cars/my-cars", async (req, res) => {
-  try {
-    const token = req.cookies.token;
+    let query = {};
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
     }
 
-    // Decoding token to get the logged-in user's ID safely
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (type && type !== "All") {
+      const typeArray = type.split(",");
+      query.type = { $in: typeArray };
+    }
 
-    // Finding cars that belong strictly to this userId
-    const cars = await Car.find({ userId: decoded.id });
+    const cars = await Car.find(query);
     res.json(cars);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// 🔍 SINGLE CAR
-router.get("/cars/:id", async (req, res) => {
+/* ---------------- MY CARS (PROTECTED) ---------------- */
+router.get("/my-cars", async (req, res) => {
+  try {
+    const token =
+      req.cookies?.token ||
+      req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized - No token" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const cars = await Car.find({ userId: decoded.id });
+
+    res.json(cars);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------- SINGLE CAR ---------------- */
+router.get("/:id", async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
     res.json(car);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// 🟢 ✅ UPDATE CAR 
-router.put("/cars/:id", async (req, res) => {
+/* ---------------- UPDATE CAR ---------------- */
+router.put("/:id", async (req, res) => {
   try {
     const updatedCar = await Car.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true }
+      { new: true }
     );
 
     if (!updatedCar) {
@@ -84,14 +103,14 @@ router.put("/cars/:id", async (req, res) => {
   }
 });
 
-// 🗑 DELETE CAR
-router.delete("/cars/:id", async (req, res) => {
+/* ---------------- DELETE CAR ---------------- */
+router.delete("/:id", async (req, res) => {
   try {
     await Car.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+export default router;

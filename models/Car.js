@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const carSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -10,8 +10,9 @@ const carSchema = new mongoose.Schema({
   userId: { type: String },
   availability: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
-  
   bookingCount: { type: Number, default: 0 },
 });
 
-module.exports = mongoose.model("Car", carSchema);
+
+const Car = mongoose.model("Car", carSchema);
+export default Car;

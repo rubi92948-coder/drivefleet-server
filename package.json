@@ -1,25 +1,21 @@
 {
   "name": "drivefleet-server",
   "version": "1.0.0",
-  "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
+    "better-auth": "^1.6.11",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "dotenv": "^16.0.0",
+    "express": "^4.21.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.2"
+    "mongodb": "^6.0.0",
+    "mongoose": "^8.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

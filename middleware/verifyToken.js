@@ -1,31 +1,16 @@
-const jwt = require("jsonwebtoken");
+import express from "express";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
-const verifyToken = (req, res, next) => {
+const router = express.Router();
 
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
+// protected route
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    const cars = await Car.find();
+    res.json(cars);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+});
 
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET,
-    (err, decoded) => {
-
-      if (err) {
-        return res.status(403).json({
-          message: "Forbidden",
-        });
-      }
-
-      req.user = decoded;
-
-      next();
-    }
-  );
-};
-
-module.exports = verifyToken;
+export default router;
